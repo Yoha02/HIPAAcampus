@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { demoApi, type ApiTranscriptSegment } from "../lib/demo-api";
-import type { Insight } from "../types";
+import type { EvidenceSource, InsightBullet } from "../types";
 
 export type InsightsStatus = "idle" | "generating" | "ready";
 
@@ -9,13 +9,13 @@ export type InsightsState = ReturnType<typeof useInsights>;
 
 type Options = {
   sessionId: string | null;
-  notesText: string;
   transcriptSegments: ApiTranscriptSegment[];
+  onSources: (sources: EvidenceSource[]) => void;
 };
 
-export function useInsights({ sessionId, notesText, transcriptSegments }: Options) {
+export function useInsights({ sessionId, transcriptSegments, onSources }: Options) {
   const [status, setStatus] = useState<InsightsStatus>("idle");
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [bullets, setBullets] = useState<InsightBullet[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [transcriptSegmentCount, setTranscriptSegmentCount] = useState(0);
 
@@ -24,11 +24,20 @@ export function useInsights({ sessionId, notesText, transcriptSegments }: Option
     setStatus("generating");
     setError(null);
     try {
-      const response = await demoApi.insights(sessionId, notesText, transcriptSegments);
-      setInsights(response.insights);
+      const response = await demoApi.insights(sessionId, transcriptSegments);
+      setBullets(
+        response.bullets.map((bullet) => ({
+          text: bullet.text,
+          citations: bullet.source_ids.map((sourceId) => ({
+            sourceId,
+            passageId: sourceId,
+          })),
+        })),
+      );
+      onSources(response.sources);
       setTranscriptSegmentCount(response.transcript_segment_count);
-      if (response.insights.length === 0) {
-        setError("Add notes or record part of the conversation before generating insights.");
+      if (response.bullets.length === 0) {
+        setError("Record part of the conversation before generating insights.");
         setStatus("idle");
       } else {
         setStatus("ready");
@@ -42,7 +51,7 @@ export function useInsights({ sessionId, notesText, transcriptSegments }: Option
   };
 
   const clear = () => {
-    setInsights([]);
+    setBullets([]);
     setError(null);
     setTranscriptSegmentCount(0);
     setStatus("idle");
@@ -50,7 +59,7 @@ export function useInsights({ sessionId, notesText, transcriptSegments }: Option
 
   return {
     status,
-    insights,
+    bullets,
     error,
     transcriptSegmentCount,
     generate,

@@ -11,7 +11,7 @@ export function InsightsEmptyState({ onGenerate }: InsightsEmptyStateProps) {
     <div className="border-y border-border py-10 text-center">
       <Lightbulb className="mx-auto mb-4 size-6 text-primary" />
       <p className="mx-auto mb-5 max-w-md text-sm text-muted-foreground">
-        Turn this conversation into a concise summary with decisions and next steps.
+        Turn the live conversation into a concise bulleted summary.
       </p>
       <Button onClick={onGenerate}>
         <Lightbulb /> Generate insights

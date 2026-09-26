@@ -10,7 +10,7 @@ the official Python MCP SDK, and local whisper.cpp transcription.
 
 - Clinician-owned rich-text notes, included from the editor in every submitted question.
 - Separate Notes and Insights tabs: notes start blank and stay clinician-controlled; Insights
-  summarizes the current notes and finalized transcript on demand.
+  produces a cited bullet summary of the finalized live transcript on demand.
 - Real local microphone capture and five-second finalized transcription chunks through whisper.cpp.
 - A resettable Maria Conti demonstration with exact historical note/transcript citations.
 - A local SQLite record service and separately runnable read-only MCP stdio server.

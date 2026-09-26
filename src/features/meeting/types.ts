@@ -60,10 +60,7 @@ export type SourceDocument = {
 
 export type SourcePanelTab = "record" | "graph";
 
-export type Insight = {
-  label: string;
-  text: string;
-};
+export type InsightBullet = ReplySentence;
 
 export type MeetingDetails = {
   title: string;

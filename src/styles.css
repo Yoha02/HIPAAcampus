@@ -240,14 +240,6 @@
   }
 }
 
-@utility insight-label {
-  margin-bottom: 0.35rem;
-  color: var(--primary);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

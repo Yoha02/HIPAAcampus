@@ -45,8 +45,8 @@ export function MeetingWorkspace() {
   );
   const insights = useInsights({
     sessionId: demo.session?.session_id ?? null,
-    notesText: demo.notesText,
     transcriptSegments,
+    onSources: sources.addSources,
   });
   const chat = useSessionChat({
     sessionId: demo.session?.session_id ?? null,
@@ -128,7 +128,11 @@ export function MeetingWorkspace() {
                   />
                 </>
               ) : (
-                <InsightsPanel state={insights} />
+                <InsightsPanel
+                  state={insights}
+                  activeCitation={activeCitation}
+                  onCitationClick={sources.showCitation}
+                />
               )}
             </div>
           </section>

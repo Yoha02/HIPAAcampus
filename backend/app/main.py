@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import re
+import math
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -98,58 +98,31 @@ def _upsert_transcript(session_id: str, segments: list[dict[str, Any]]) -> None:
             )
 
 
-def _insight_sentences(chunks: list[str]) -> list[str]:
-    sentences: list[str] = []
-    seen: set[str] = set()
-    for chunk in chunks:
-        for sentence in re.split(r"(?<=[.!?])\s+", " ".join(chunk.split())):
-            normalized = sentence.strip()
-            key = normalized.casefold()
-            if normalized and key not in seen:
-                seen.add(key)
-                sentences.append(normalized)
-    return sentences
-
-
-def _clip_summary(sentences: list[str], limit: int = 700) -> str:
-    summary = " ".join(sentences)
+def _clip_summary(chunks: list[str], limit: int = 440) -> str:
+    summary = " ".join(" ".join(chunk.split()) for chunk in chunks)
     if len(summary) <= limit:
         return summary
     return f"{summary[: limit - 1].rstrip()}…"
 
 
-def _generate_insights(notes_text: str, segments: list[dict[str, Any]]) -> list[dict[str, str]]:
-    finalized = [
-        segment["text"].strip()
-        for segment in segments
-        if segment.get("is_final") and segment.get("text", "").strip()
-    ]
-    notes = " ".join(notes_text.split())
-    conversation = _insight_sentences(finalized)
-    note_sentences = _insight_sentences([notes]) if notes else []
-    source_sentences = conversation or note_sentences
-    if not source_sentences:
-        return []
+def _generate_insights(
+    patient_id: str, segments: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    sources = GroundedChat.current_sources(patient_id, "", segments)
+    if not sources:
+        return [], []
 
-    insights = [{"label": "Summary", "text": _clip_summary(source_sentences[:5])}]
-    action_pattern = re.compile(
-        r"\b(plan|will|need|order|schedule|follow up|refer|start|stop|hold|continue|next)\b",
-        re.IGNORECASE,
-    )
-    actions = [
-        sentence
-        for sentence in [*conversation, *note_sentences]
-        if action_pattern.search(sentence)
-    ]
-    if actions:
-        insights.append(
-            {"label": "Decisions & next steps", "text": _clip_summary(actions[:4], limit=550)}
+    group_size = max(1, math.ceil(len(sources) / 5))
+    bullets = []
+    for offset in range(0, len(sources), group_size):
+        group = sources[offset : offset + group_size]
+        bullets.append(
+            {
+                "text": _clip_summary([source["text"] for source in group]),
+                "source_ids": [source["id"] for source in group],
+            }
         )
-    if notes and conversation:
-        insights.append(
-            {"label": "Clinician notes", "text": _clip_summary(note_sentences[:4], limit=550)}
-        )
-    return insights
+    return bullets, sources
 
 
 @app.get("/api/health")
@@ -293,12 +266,14 @@ def update_transcript(session_id: str, payload: TranscriptUpdate) -> dict[str, A
 
 @app.post("/api/sessions/{session_id}/insights")
 def generate_insights(session_id: str, payload: InsightsRequest) -> dict[str, Any]:
-    _session(session_id)
+    session = _session(session_id)
     segments = [segment.model_dump() for segment in payload.transcript_segments]
     _upsert_transcript(session_id, segments)
     finalized_count = sum(segment["is_final"] and bool(segment["text"].strip()) for segment in segments)
+    bullets, sources = _generate_insights(session["patient_id"], segments)
     return {
-        "insights": _generate_insights(payload.notes_text, segments),
+        "bullets": bullets,
+        "sources": sources,
         "transcript_segment_count": finalized_count,
         "generated_at": _now(),
         "synthetic": True,

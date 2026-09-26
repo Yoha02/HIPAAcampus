@@ -27,7 +27,6 @@ class TranscriptUpdate(BaseModel):
 
 
 class InsightsRequest(BaseModel):
-    notes_text: str = Field(default="", max_length=50_000)
     transcript_segments: list[TranscriptSegmentInput] = Field(default_factory=list, max_length=500)
 
 

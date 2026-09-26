@@ -60,7 +60,6 @@ def test_notes_start_blank_and_insights_use_latest_transcript(api_client: TestCl
     first = api_client.post(
         f"/api/sessions/{session_id}/insights",
         json={
-            "notes_text": "Follow up next week.",
             "transcript_segments": [
                 {
                     "id": "insight-1",
@@ -75,12 +74,17 @@ def test_notes_start_blank_and_insights_use_latest_transcript(api_client: TestCl
     )
     assert first.status_code == 200
     assert first.json()["transcript_segment_count"] == 1
-    assert "appetite" in first.json()["insights"][0]["text"].lower()
+    assert "appetite" in first.json()["bullets"][0]["text"].lower()
+    source_ids = {source["id"] for source in first.json()["sources"]}
+    assert all(
+        source_id in source_ids
+        for bullet in first.json()["bullets"]
+        for source_id in bullet["source_ids"]
+    )
 
     regenerated = api_client.post(
         f"/api/sessions/{session_id}/insights",
         json={
-            "notes_text": "Follow up next week.",
             "transcript_segments": [
                 {
                     "id": "insight-1",
@@ -103,8 +107,12 @@ def test_notes_start_blank_and_insights_use_latest_transcript(api_client: TestCl
     )
     assert regenerated.status_code == 200
     assert regenerated.json()["transcript_segment_count"] == 2
-    insight_text = " ".join(item["text"] for item in regenerated.json()["insights"])
+    insight_text = " ".join(item["text"] for item in regenerated.json()["bullets"])
     assert "blood work" in insight_text.lower()
+    assert any(
+        "live-insight-2" in bullet["source_ids"]
+        for bullet in regenerated.json()["bullets"]
+    )
 
 
 def test_chat_uses_latest_notes_and_valid_citations(api_client: TestClient) -> None:

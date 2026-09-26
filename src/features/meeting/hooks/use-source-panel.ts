@@ -60,12 +60,16 @@ export function useSourcePanel(patientSources: EvidenceSource[] = []) {
   });
 
   const setAnswer = (response: ChatApiResponse) => {
+    addSources(response.sources);
+    setGraph(response.graph);
+  };
+
+  const addSources = (nextSources: EvidenceSource[]) => {
     setSources((current) => {
       const merged = new Map(current.map((source) => [source.id, source]));
-      response.sources.map(toDocument).forEach((source) => merged.set(source.id, source));
+      nextSources.map(toDocument).forEach((source) => merged.set(source.id, source));
       return [...merged.values()];
     });
-    setGraph(response.graph);
   };
 
   useEffect(() => {
@@ -82,6 +86,7 @@ export function useSourcePanel(patientSources: EvidenceSource[] = []) {
     graph,
     setTab,
     setAnswer,
+    addSources,
     toggle: () => setIsOpen((open) => !open),
     close: () => setIsOpen(false),
     showCitation: (citation: Citation) => show(citation.sourceId, citation.passageId),

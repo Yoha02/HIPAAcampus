@@ -4,18 +4,31 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { InsightsState } from "../../hooks/use-insights";
-import { InsightRow } from "./insight-row";
+import type { Citation } from "../../types";
+import { CitationChip } from "../sources/citation-chip";
 import { InsightsEmptyState } from "./insights-empty-state";
 import { InsightsLoading } from "./insights-loading";
 
 type InsightsPanelProps = {
   state: InsightsState;
+  activeCitation: Citation | null;
+  onCitationClick: (citation: Citation) => void;
 };
 
-export function InsightsPanel({ state }: InsightsPanelProps) {
-  const { status, insights, error, transcriptSegmentCount, generate } = state;
+const citationKey = (citation: Citation) => `${citation.sourceId}#${citation.passageId}`;
+
+export function InsightsPanel({ state, activeCitation, onCitationClick }: InsightsPanelProps) {
+  const { status, bullets, error, transcriptSegmentCount, generate } = state;
   const isGenerating = status === "generating";
-  const hasInsights = insights.length > 0;
+  const hasInsights = bullets.length > 0;
+  const citationNumbers = new Map<string, number>();
+  bullets.forEach((bullet) =>
+    bullet.citations.forEach((citation) => {
+      const key = citationKey(citation);
+      if (!citationNumbers.has(key)) citationNumbers.set(key, citationNumbers.size + 1);
+    }),
+  );
+  const activeKey = activeCitation && citationKey(activeCitation);
 
   return (
     <div>
@@ -25,7 +38,7 @@ export function InsightsPanel({ state }: InsightsPanelProps) {
             <WandSparkles className="size-5 text-primary" /> Insights
           </div>
           <p className="text-sm text-muted-foreground">
-            A concise summary of the current notes and finalized transcript.
+            A concise summary of the finalized live transcript.
           </p>
         </div>
         {hasInsights && (
@@ -41,13 +54,24 @@ export function InsightsPanel({ state }: InsightsPanelProps) {
         <>
           <p className="mb-3 text-xs text-muted-foreground">
             Generated from {transcriptSegmentCount} finalized transcript passage
-            {transcriptSegmentCount === 1 ? "" : "s"} and the current notes.
+            {transcriptSegmentCount === 1 ? "" : "s"}.
           </p>
-          <div className="border-t border-border text-sm">
-            {insights.map((insight) => (
-              <InsightRow key={insight.label} insight={insight} />
+          <ul className="list-disc space-y-3 border-t border-border py-6 pl-5 text-sm leading-7 marker:text-muted-foreground">
+            {bullets.map((bullet, index) => (
+              <li key={`${bullet.text}-${index}`} className="pl-1">
+                {bullet.text}{" "}
+                {bullet.citations.map((citation) => (
+                  <CitationChip
+                    key={citationKey(citation)}
+                    number={citationNumbers.get(citationKey(citation)) ?? 0}
+                    sourceLabel={`Live transcript ${citation.sourceId}`}
+                    active={citationKey(citation) === activeKey}
+                    onClick={() => onCitationClick(citation)}
+                  />
+                ))}
+              </li>
             ))}
-          </div>
+          </ul>
         </>
       ) : (
         <>
