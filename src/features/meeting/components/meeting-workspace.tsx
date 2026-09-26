@@ -21,7 +21,7 @@ export function MeetingWorkspace() {
   const [panel, setPanel] = useState<BottomPanel>(null);
   const recorder = useRecorder();
   const demo = useDemoSession();
-  const sources = useSourcePanel();
+  const sources = useSourcePanel(demo.patientSources);
   const transcriptSegments = useMemo(
     () =>
       recorder.segments.map((segment, index) => ({

@@ -62,6 +62,12 @@ export const demoApi = {
     const payload = await request<{ patients: PatientOption[] }>("/demo/patients");
     return payload.patients;
   },
+  async patientSources(patientId: string) {
+    const payload = await request<{ sources: EvidenceSource[] }>(
+      `/demo/patients/${patientId}/sources`,
+    );
+    return payload.sources;
+  },
   createSession(patientId: string) {
     return request<DemoSession>("/sessions", {
       method: "POST",

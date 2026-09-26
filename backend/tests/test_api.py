@@ -31,6 +31,26 @@ def test_health_and_cross_doctor_session_rejection(api_client: TestClient) -> No
     assert response.json()["detail"] == "Patient record is unavailable"
 
 
+def test_patient_sources_load_up_front_and_follow_consent(api_client: TestClient) -> None:
+    loaded = api_client.get("/api/demo/patients/pt-maria-conti/sources")
+    assert loaded.status_code == 200
+    sources = loaded.json()["sources"]
+    assert len(sources) > 0
+    assert all(source["patient_id"] == "pt-maria-conti" for source in sources)
+    assert any(source["id"] == "seg-maria-june-0412" for source in sources)
+
+    changed = api_client.put(
+        "/api/demo/patients/pt-maria-conti/consent/medications",
+        json={"consented": False},
+    )
+    assert changed.status_code == 200
+    refreshed = api_client.get("/api/demo/patients/pt-maria-conti/sources").json()["sources"]
+    assert all(source["consent_category"] != "medications" for source in refreshed)
+
+    unavailable = api_client.get("/api/demo/patients/pt-nora-ellis/sources")
+    assert unavailable.status_code == 404
+
+
 def test_chat_uses_latest_notes_and_valid_citations(api_client: TestClient) -> None:
     session_id = create_maria_session(api_client)
     response = ask(

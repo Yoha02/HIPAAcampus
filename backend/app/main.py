@@ -118,6 +118,14 @@ def list_patients() -> dict[str, Any]:
     return {"patients": records.list_patients(), "synthetic": True}
 
 
+@app.get("/api/demo/patients/{patient_id}/sources")
+def list_patient_sources(patient_id: str) -> dict[str, Any]:
+    try:
+        return records.get_patient_history(patient_id)
+    except Exception as error:
+        raise _handle_record_error(error) from error
+
+
 @app.post("/api/sessions")
 def create_session(payload: SessionCreate) -> dict[str, Any]:
     try:

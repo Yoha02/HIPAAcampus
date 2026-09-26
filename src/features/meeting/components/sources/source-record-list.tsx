@@ -11,8 +11,8 @@ export function SourceRecordList({ sources, onSelect }: SourceRecordListProps) {
   return (
     <div className="flex-1 overflow-y-auto px-5 py-4">
       <p className="mb-3 text-xs text-muted-foreground">
-        {sources.length} permitted evidence item{sources.length === 1 ? "" : "s"} from the latest
-        answer. Click a citation to jump to its exact excerpt.
+        {sources.length} record{sources.length === 1 ? "" : "s"} loaded for the selected patient.
+        Click a record to inspect it, or a citation to jump to its exact excerpt.
       </p>
       <ul className="space-y-2">
         {sources.map((source) => (

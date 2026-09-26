@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type {
   Citation,
@@ -19,7 +19,7 @@ type Focus = {
 
 export type SourcePanel = ReturnType<typeof useSourcePanel>;
 
-export function useSourcePanel() {
+export function useSourcePanel(patientSources: EvidenceSource[] = []) {
   const [isOpen, setIsOpen] = useState(false);
   const [tab, setTab] = useState<SourcePanelTab>("record");
   const [focus, setFocus] = useState<Focus | null>(null);
@@ -60,9 +60,19 @@ export function useSourcePanel() {
   });
 
   const setAnswer = (response: ChatApiResponse) => {
-    setSources(response.sources.map(toDocument));
+    setSources((current) => {
+      const merged = new Map(current.map((source) => [source.id, source]));
+      response.sources.map(toDocument).forEach((source) => merged.set(source.id, source));
+      return [...merged.values()];
+    });
     setGraph(response.graph);
   };
+
+  useEffect(() => {
+    setSources(patientSources.map(toDocument));
+    setGraph({ nodes: [], edges: [] });
+    setFocus(null);
+  }, [patientSources]);
 
   return {
     isOpen,
