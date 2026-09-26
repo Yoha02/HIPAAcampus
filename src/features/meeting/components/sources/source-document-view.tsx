@@ -4,7 +4,10 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { SOURCE_CATEGORIES } from "../../lib/source-categories";
+import { sourceTitle } from "../../sources";
 import type { SourceDocument, SourceSpan } from "../../types";
+import { SourceDot } from "./source-dot";
 
 type SourceDocumentViewProps = {
   source: SourceDocument;
@@ -42,13 +45,14 @@ export function SourceDocumentView({
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-10 pt-2">
         <header className="mb-5 border-b border-border pb-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
-            {source.kind}
+          <p className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <SourceDot category={source.category} />
+            {SOURCE_CATEGORIES[source.category].label}
           </p>
-          <h3 className="font-display text-2xl leading-tight">
-            {source.date} {source.patient} {source.title}
-          </h3>
-          <p className="mt-1 text-xs text-muted-foreground">{source.author}</p>
+          <h3 className="font-display text-2xl leading-tight">{sourceTitle(source)}</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {source.kind} · {source.author}
+          </p>
         </header>
 
         <div className="space-y-5 text-sm leading-6">
@@ -72,7 +76,12 @@ export function SourceDocumentView({
                     )}
                     <p className="text-foreground/85">
                       {paragraph.spans.map((span, spanIndex) => (
-                        <SourceSpanText key={spanIndex} span={span} focusedId={passageId} />
+                        <SourceSpanText
+                          key={spanIndex}
+                          span={span}
+                          focusedId={passageId}
+                          highlightClass={SOURCE_CATEGORIES[source.category].highlight}
+                        />
                       ))}
                     </p>
                   </div>
@@ -86,13 +95,22 @@ export function SourceDocumentView({
   );
 }
 
-function SourceSpanText({ span, focusedId }: { span: SourceSpan; focusedId: string | null }) {
+type SourceSpanTextProps = {
+  span: SourceSpan;
+  focusedId: string | null;
+  highlightClass: string;
+};
+
+function SourceSpanText({ span, focusedId, highlightClass }: SourceSpanTextProps) {
   if (typeof span === "string") return <>{span}</>;
   if (span.id !== focusedId) return <span data-passage-id={span.id}>{span.text}</span>;
   return (
     <mark
       data-passage-id={span.id}
-      className="rounded-sm bg-highlight px-0.5 text-foreground ring-2 ring-highlight-ring/60 box-decoration-clone"
+      className={cn(
+        "rounded-sm px-0.5 text-foreground ring-2 box-decoration-clone",
+        highlightClass,
+      )}
     >
       {span.text}
     </mark>

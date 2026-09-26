@@ -53,11 +53,11 @@ src/
   lib/whisper.server.ts   Server-only whisper.cpp client
   components/
     ui/                   shadcn/ui primitives
-    layout/               App header, brand mark, avatar
+    layout/               App header, brand mark
     shared/               Reusable pieces (tabs, search field, bottom sheet)
     app/                  Root-level 404 and error screens
   features/meeting/
-    components/           Workspace, notes, insights, transcript, chat, dock
+    components/           Workspace, notes, summary, sources, transcript, chat, dock
     hooks/                Recorder, whisper transcription, timer, session chat
     lib/                  Mic capture, WAV encoding, transcription API, formatting
     data.ts               Demo meeting content

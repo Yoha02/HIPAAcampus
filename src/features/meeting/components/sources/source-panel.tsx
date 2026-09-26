@@ -1,12 +1,15 @@
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { UnderlineTabs } from "@/components/shared/underline-tabs";
 import { Button } from "@/components/ui/button";
 
 import type { SourcePanel as SourcePanelState } from "../../hooks/use-source-panel";
-import { DEMO_SOURCES, findSource } from "../../sources";
-import type { SourcePanelTab } from "../../types";
+import type { SourceDocument, SourcePanelTab } from "../../types";
+import { AddSourceDialog } from "./add-source-dialog";
 import { SourceDocumentView } from "./source-document-view";
+import { SourceLegend } from "./source-legend";
 import { SourceRecordList } from "./source-record-list";
 
 const SOURCE_TABS: { value: SourcePanelTab; label: string }[] = [
@@ -19,7 +22,13 @@ type SourcePanelProps = {
 };
 
 export function SourcePanel({ panel }: SourcePanelProps) {
-  const source = findSource(panel.focus?.sourceId ?? null);
+  const [adding, setAdding] = useState(false);
+  const source = panel.activeSource;
+
+  const addSource = (added: SourceDocument) => {
+    panel.addSource(added);
+    toast.success(`Added “${added.title}”`);
+  };
 
   return (
     <aside
@@ -28,13 +37,25 @@ export function SourcePanel({ panel }: SourcePanelProps) {
     >
       <div className="flex items-center justify-between px-5 pt-3">
         <h2 className="font-semibold">Sources</h2>
-        <Button variant="ghost" size="icon" onClick={panel.close} aria-label="Close sources">
-          <X />
-        </Button>
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAdding(true)}
+            aria-label="Add source"
+          >
+            <Plus />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={panel.close} aria-label="Close sources">
+            <X />
+          </Button>
+        </div>
       </div>
       <div className="px-5">
         <UnderlineTabs options={SOURCE_TABS} value={panel.tab} onChange={panel.setTab} />
       </div>
+
+      <SourceLegend />
 
       {panel.tab === "graph" ? (
         <div className="flex-1" />
@@ -47,8 +68,14 @@ export function SourcePanel({ panel }: SourcePanelProps) {
           onBack={panel.showList}
         />
       ) : (
-        <SourceRecordList sources={DEMO_SOURCES} onSelect={panel.showSource} />
+        <SourceRecordList
+          sources={panel.sources}
+          onSelect={panel.showSource}
+          onAdd={() => setAdding(true)}
+        />
       )}
+
+      <AddSourceDialog open={adding} onOpenChange={setAdding} onAdd={addSource} />
     </aside>
   );
 }

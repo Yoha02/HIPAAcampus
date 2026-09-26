@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 
-import { findSource } from "../../sources";
+import { findSource, sourceTitle } from "../../sources";
 import type { ChatMessage, Citation, ReplySentence } from "../../types";
 import { CitationChip } from "../sources/citation-chip";
 
@@ -24,9 +24,28 @@ function numberCitations(sentences: ReplySentence[]) {
   return numbers;
 }
 
-function sourceLabel(citation: Citation) {
+function CitationButton({
+  citation,
+  number,
+  active,
+  onClick,
+}: {
+  citation: Citation;
+  number: number;
+  active: boolean;
+  onClick: () => void;
+}) {
   const source = findSource(citation.sourceId);
-  return source ? `${source.date} ${source.patient} ${source.title}` : "Source";
+  if (!source) return null;
+  return (
+    <CitationChip
+      number={number}
+      category={source.category}
+      sourceLabel={sourceTitle(source)}
+      active={active}
+      onClick={onClick}
+    />
+  );
 }
 
 export function ChatMessageBubble({
@@ -51,10 +70,10 @@ export function ChatMessageBubble({
         <Fragment key={index}>
           {sentence.text}
           {sentence.citations.map((citation) => (
-            <CitationChip
+            <CitationButton
               key={citationKey(citation)}
+              citation={citation}
               number={numbers.get(citationKey(citation)) ?? 0}
-              sourceLabel={sourceLabel(citation)}
               active={citationKey(citation) === activeKey}
               onClick={() => onCitationClick(citation)}
             />

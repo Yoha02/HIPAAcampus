@@ -1,4 +1,4 @@
-import { CalendarDays, FolderPlus, PanelRight } from "lucide-react";
+import { CalendarDays, PanelRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -19,14 +19,9 @@ export function MeetingHeader({ meeting, sourcesOpen, onToggleSources }: Meeting
         </p>
         <h1 className="font-display text-4xl font-medium sm:text-5xl">{meeting.title}</h1>
       </div>
-      <div className="flex items-center gap-2">
-        <Button variant="outline">
-          <FolderPlus /> Add to folder
-        </Button>
-        <Button variant="outline" onClick={onToggleSources} aria-pressed={sourcesOpen}>
-          <PanelRight /> Sources
-        </Button>
-      </div>
+      <Button variant="outline" onClick={onToggleSources} aria-pressed={sourcesOpen}>
+        <PanelRight /> Sources
+      </Button>
     </div>
   );
 }

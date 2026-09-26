@@ -1,4 +1,4 @@
-export type WorkspaceView = "notes" | "insights";
+export type WorkspaceView = "notes" | "summary";
 
 export type BottomPanel = "chat" | "transcript" | null;
 
@@ -37,10 +37,14 @@ export type SourceSection = {
   paragraphs: { label?: string; spans: SourceSpan[] }[];
 };
 
+export type SourceCategory = "clinician-notes" | "live-transcript" | "ehr" | "medical-reference";
+
 export type SourceDocument = {
   id: string;
+  category: SourceCategory;
   date: string;
-  patient: string;
+  /** Omitted for references that aren't tied to a patient. */
+  patient?: string;
   title: string;
   kind: string;
   author: string;
@@ -48,11 +52,6 @@ export type SourceDocument = {
 };
 
 export type SourcePanelTab = "record" | "graph";
-
-export type Insight = {
-  label: string;
-  text: string;
-};
 
 export type MeetingDetails = {
   title: string;

@@ -6,14 +6,14 @@ import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 import { DEMO_MEETING, SUGGESTED_QUESTIONS } from "../data";
-import { useInsights } from "../hooks/use-insights";
+import { useSummary } from "../hooks/use-summary";
 import { useRecorder } from "../hooks/use-recorder";
 import { useSessionChat } from "../hooks/use-session-chat";
 import { useSourcePanel } from "../hooks/use-source-panel";
 import type { BottomPanel, WorkspaceView } from "../types";
 import { ChatPanel } from "./chat/chat-panel";
 import { BottomDock } from "./dock/bottom-dock";
-import { InsightsPanel } from "./insights/insights-panel";
+import { SummaryPanel } from "./summary/summary-panel";
 import { MeetingHeader } from "./meeting-header";
 import { NotesEditor } from "./notes/notes-editor";
 import { SourcePanel } from "./sources/source-panel";
@@ -21,13 +21,13 @@ import { TranscriptPanel } from "./transcript/transcript-panel";
 
 const WORKSPACE_TABS: { value: WorkspaceView; label: string }[] = [
   { value: "notes", label: "Notes" },
-  { value: "insights", label: "Insights" },
+  { value: "summary", label: "Summary" },
 ];
 
 export function MeetingWorkspace() {
   const [view, setView] = useState<WorkspaceView>("notes");
   const [panel, setPanel] = useState<BottomPanel>(null);
-  const insights = useInsights();
+  const summary = useSummary();
   const recorder = useRecorder();
   const chat = useSessionChat();
   const sources = useSourcePanel();
@@ -63,7 +63,7 @@ export function MeetingWorkspace() {
               className="mb-8"
             />
             <div className="max-w-3xl">
-              {view === "notes" ? <NotesEditor /> : <InsightsPanel state={insights} />}
+              {view === "notes" ? <NotesEditor /> : <SummaryPanel state={summary} />}
             </div>
           </section>
         </div>

@@ -1,4 +1,4 @@
-import { ArrowUp, Check, ChevronDown, FilePlus2, Plus } from "lucide-react";
+import { ArrowUp, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,26 +13,6 @@ type ChatComposerProps = {
   onChange: (value: string) => void;
   onSend: () => void;
 };
-
-function AttachMenu() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Add">
-          <Plus />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem>
-          <FilePlus2 /> Insert file
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Check /> Connect tools
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 function ModeMenu() {
   return (
@@ -53,7 +33,6 @@ function ModeMenu() {
 export function ChatComposer({ value, onChange, onSend }: ChatComposerProps) {
   return (
     <div className="flex items-end gap-2 rounded-xl border border-input bg-background p-2 focus-within:ring-2 focus-within:ring-ring/30">
-      <AttachMenu />
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}

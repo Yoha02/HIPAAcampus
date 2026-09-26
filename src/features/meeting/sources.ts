@@ -5,6 +5,7 @@ const PATIENT = "Maria Alvarez";
 export const DEMO_SOURCES: SourceDocument[] = [
   {
     id: "call-2026-06-04",
+    category: "live-transcript",
     date: "6/4/26",
     patient: PATIENT,
     title: "Follow-up Call Transcript",
@@ -100,6 +101,7 @@ export const DEMO_SOURCES: SourceDocument[] = [
   },
   {
     id: "note-2026-06-04",
+    category: "clinician-notes",
     date: "6/4/26",
     patient: PATIENT,
     title: "Telephone Encounter Note",
@@ -154,6 +156,7 @@ export const DEMO_SOURCES: SourceDocument[] = [
   },
   {
     id: "labs-2026-05-28",
+    category: "ehr",
     date: "5/28/26",
     patient: PATIENT,
     title: "Lab Results: HbA1c and CMP",
@@ -183,6 +186,7 @@ export const DEMO_SOURCES: SourceDocument[] = [
   },
   {
     id: "note-2026-03-12",
+    category: "clinician-notes",
     date: "3/12/26",
     patient: PATIENT,
     title: "Visit Notes",
@@ -215,8 +219,72 @@ export const DEMO_SOURCES: SourceDocument[] = [
       },
     ],
   },
+  {
+    id: "ref-metformin-gi",
+    category: "medical-reference",
+    date: "Rev. 2025",
+    title: "Metformin: Gastrointestinal Adverse Effects",
+    kind: "Drug monograph",
+    author: "Clinical drug reference",
+    sections: [
+      {
+        heading: "Overview",
+        paragraphs: [
+          {
+            spans: [
+              "Gastrointestinal symptoms, including diarrhea, nausea, vomiting, abdominal discomfort, and flatulence, are the most commonly reported adverse effects of metformin.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Onset and course",
+        paragraphs: [
+          {
+            spans: [
+              "Symptoms usually begin when the drug is started or the dose is increased, and often lessen over several weeks of continued use.",
+            ],
+          },
+          {
+            spans: [
+              {
+                id: "persistence-after-stopping",
+                text: "Metformin-related diarrhea typically resolves within days of stopping the drug. Diarrhea that persists after discontinuation, or steatorrhea (greasy, pale stools that float), should prompt evaluation for another cause, such as pancreatic exocrine insufficiency, celiac disease, or other malabsorptive conditions.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Reducing symptoms",
+        paragraphs: [
+          {
+            spans: [
+              "Take with meals, start at a low dose and titrate gradually, or consider an extended-release formulation.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const DEMO_CONNECTORS: {
+  name: string;
+  category: SourceDocument["category"];
+  description: string;
+}[] = [
+  { name: "Epic", category: "ehr", description: "Visit notes, labs, medications" },
+  { name: "Oracle Health (Cerner)", category: "ehr", description: "Encounters and results" },
+  { name: "Microsoft Teams", category: "live-transcript", description: "Call transcripts" },
+  { name: "UpToDate", category: "medical-reference", description: "Clinical topic reviews" },
+  { name: "PubMed", category: "medical-reference", description: "Published research" },
 ];
 
 export function findSource(id: string | null): SourceDocument | undefined {
   return DEMO_SOURCES.find((source) => source.id === id);
+}
+
+export function sourceTitle(source: SourceDocument): string {
+  return [source.date, source.patient, source.title].filter(Boolean).join(" ");
 }

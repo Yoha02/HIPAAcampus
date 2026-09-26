@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
       { title: "Hippacampus — Physician Notes Workspace" },
       {
         name: "description",
-        content: "A calm workspace for live transcripts, notes, and meeting insights.",
+        content: "A calm workspace for live transcripts, notes, and meeting summaries.",
       },
       { property: "og:title", content: "Hippacampus — Physician Notes Workspace" },
       {
