@@ -1,11 +1,25 @@
+import { useEffect } from "react";
+
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 import { useRichTextEditor } from "../../hooks/use-rich-text-editor";
 import { NotesFormatMenu } from "./notes-format-menu";
 
-export function NotesEditor() {
+type NotesEditorProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+export function NotesEditor({ value, onChange }: NotesEditorProps) {
   const { editorRef, formatState, isEmpty, captureSelection, runCommand, onKeyDown, onInput } =
     useRichTextEditor();
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor && editor.innerText !== value && document.activeElement !== editor) {
+      editor.innerText = value;
+    }
+  }, [editorRef, value]);
 
   return (
     <ContextMenu>
@@ -15,17 +29,16 @@ export function NotesEditor() {
           contentEditable
           suppressContentEditableWarning
           onKeyDown={onKeyDown}
-          onInput={onInput}
+          onInput={(event) => {
+            onInput();
+            onChange(event.currentTarget.innerText);
+          }}
           onContextMenu={captureSelection}
-          data-empty={isEmpty || undefined}
+          data-empty={(isEmpty && !value.trim()) || undefined}
           data-placeholder="Type anything"
           className="note-editor min-h-[28rem] outline-none"
           aria-label="Meeting notes"
-        >
-          <p>
-            <br />
-          </p>
-        </div>
+        />
       </ContextMenuTrigger>
       <NotesFormatMenu formatState={formatState} onCommand={runCommand} />
     </ContextMenu>

@@ -24,7 +24,7 @@ export function ChatPanel({
   return (
     <BottomSheet
       title="Ask about this session"
-      subtitle="Answers are demo responses"
+      subtitle="Grounded in permitted synthetic records and finalized speech"
       closeLabel="Close chat"
       onClose={onClose}
     >
@@ -41,8 +41,16 @@ export function ChatPanel({
             />
           ))
         )}
+        {chat.isSending && (
+          <p className="text-sm text-muted-foreground">Checking permitted evidence…</p>
+        )}
       </div>
-      <ChatComposer value={chat.draft} onChange={chat.setDraft} onSend={() => chat.send()} />
+      <ChatComposer
+        value={chat.draft}
+        onChange={chat.setDraft}
+        onSend={() => void chat.send()}
+        disabled={chat.isSending}
+      />
     </BottomSheet>
   );
 }

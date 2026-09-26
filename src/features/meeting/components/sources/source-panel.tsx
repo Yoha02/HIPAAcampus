@@ -4,7 +4,6 @@ import { UnderlineTabs } from "@/components/shared/underline-tabs";
 import { Button } from "@/components/ui/button";
 
 import type { SourcePanel as SourcePanelState } from "../../hooks/use-source-panel";
-import { DEMO_SOURCES, findSource } from "../../sources";
 import type { SourcePanelTab } from "../../types";
 import { SourceDocumentView } from "./source-document-view";
 import { SourceRecordList } from "./source-record-list";
@@ -19,7 +18,7 @@ type SourcePanelProps = {
 };
 
 export function SourcePanel({ panel }: SourcePanelProps) {
-  const source = findSource(panel.focus?.sourceId ?? null);
+  const source = panel.sources.find((item) => item.id === panel.focus?.sourceId);
 
   return (
     <aside
@@ -37,7 +36,47 @@ export function SourcePanel({ panel }: SourcePanelProps) {
       </div>
 
       {panel.tab === "graph" ? (
-        <div className="flex-1" />
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          {panel.graph.nodes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Ask a question to build a graph from its validated evidence.
+            </p>
+          ) : (
+            <>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Deterministic links from answer claims to cited evidence.
+              </p>
+              <div className="space-y-2">
+                {panel.graph.nodes.map((node) => {
+                  const isSource = panel.sources.some((item) => item.id === node.id);
+                  return (
+                    <button
+                      key={node.id}
+                      type="button"
+                      disabled={!isSource}
+                      onClick={() => isSource && panel.showSource(node.id)}
+                      className="w-full rounded-lg border border-border bg-background p-3 text-left disabled:cursor-default"
+                    >
+                      <span className="block text-[0.68rem] font-semibold uppercase tracking-wide text-primary">
+                        {node.kind.replaceAll("_", " ")}
+                      </span>
+                      <span className="text-sm">{node.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-5 border-t border-border pt-4">
+                {panel.graph.edges.map((edge, index) => (
+                  <p key={`${edge.source}-${edge.target}-${index}`} className="mb-2 text-xs">
+                    <span className="font-medium">{edge.source}</span>{" "}
+                    <span className="text-muted-foreground">{edge.type.replaceAll("_", " ")}</span>{" "}
+                    <span className="font-medium">{edge.target}</span>
+                  </p>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       ) : source && panel.focus ? (
         <SourceDocumentView
           key={source.id}
@@ -47,7 +86,7 @@ export function SourcePanel({ panel }: SourcePanelProps) {
           onBack={panel.showList}
         />
       ) : (
-        <SourceRecordList sources={DEMO_SOURCES} onSelect={panel.showSource} />
+        <SourceRecordList sources={panel.sources} onSelect={panel.showSource} />
       )}
     </aside>
   );

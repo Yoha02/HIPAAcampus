@@ -10,6 +10,9 @@ export const DEMO_SOURCES: SourceDocument[] = [
     title: "Follow-up Call Transcript",
     kind: "Call transcript",
     author: "Recorded by Dr. M. Nguyen",
+    synthetic: true,
+    consentCategory: "medications",
+    documentationStatus: "spoken_only",
     sections: [
       {
         paragraphs: [
@@ -105,6 +108,9 @@ export const DEMO_SOURCES: SourceDocument[] = [
     title: "Telephone Encounter Note",
     kind: "Visit note",
     author: "Dr. M. Nguyen, MD",
+    synthetic: true,
+    consentCategory: "medications",
+    documentationStatus: "documented",
     sections: [
       {
         heading: "Reason for call",
@@ -159,6 +165,9 @@ export const DEMO_SOURCES: SourceDocument[] = [
     title: "Lab Results: HbA1c and CMP",
     kind: "Lab report",
     author: "Valley Clinical Laboratory",
+    synthetic: true,
+    consentCategory: "general",
+    documentationStatus: "documented",
     sections: [
       {
         heading: "Hemoglobin A1c",
@@ -188,6 +197,9 @@ export const DEMO_SOURCES: SourceDocument[] = [
     title: "Visit Notes",
     kind: "Visit note",
     author: "Dr. M. Nguyen, MD",
+    synthetic: true,
+    consentCategory: "general",
+    documentationStatus: "documented",
     sections: [
       {
         heading: "Chief complaint",

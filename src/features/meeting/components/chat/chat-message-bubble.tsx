@@ -1,6 +1,3 @@
-import { Fragment } from "react";
-
-import { findSource } from "../../sources";
 import type { ChatMessage, Citation, ReplySentence } from "../../types";
 import { CitationChip } from "../sources/citation-chip";
 
@@ -25,8 +22,7 @@ function numberCitations(sentences: ReplySentence[]) {
 }
 
 function sourceLabel(citation: Citation) {
-  const source = findSource(citation.sourceId);
-  return source ? `${source.date} ${source.patient} ${source.title}` : "Source";
+  return `Evidence source ${citation.sourceId}`;
 }
 
 export function ChatMessageBubble({
@@ -42,25 +38,35 @@ export function ChatMessageBubble({
     );
   }
 
-  const numbers = numberCitations(message.sentences);
+  const numbers = numberCitations(message.claims);
   const activeKey = activeCitation && citationKey(activeCitation);
 
   return (
-    <p className="max-w-[78%] text-sm leading-7">
-      {message.sentences.map((sentence, index) => (
-        <Fragment key={index}>
-          {sentence.text}
-          {sentence.citations.map((citation) => (
-            <CitationChip
-              key={citationKey(citation)}
-              number={numbers.get(citationKey(citation)) ?? 0}
-              sourceLabel={sourceLabel(citation)}
-              active={citationKey(citation) === activeKey}
-              onClick={() => onCitationClick(citation)}
-            />
-          ))}{" "}
-        </Fragment>
-      ))}
-    </p>
+    <div className="max-w-[86%] text-sm leading-7">
+      <p className="whitespace-pre-wrap">{message.answer}</p>
+      {message.claims.length > 0 && (
+        <div className="mt-2 space-y-1 border-l border-border pl-3 text-xs text-muted-foreground">
+          {message.claims.map((claim, index) => (
+            <p key={index}>
+              {claim.text}
+              {claim.citations.map((citation) => (
+                <CitationChip
+                  key={citationKey(citation)}
+                  number={numbers.get(citationKey(citation)) ?? 0}
+                  sourceLabel={sourceLabel(citation)}
+                  active={citationKey(citation) === activeKey}
+                  onClick={() => onCitationClick(citation)}
+                />
+              ))}{" "}
+            </p>
+          ))}
+        </div>
+      )}
+      {message.knowledgeStatus !== "not_requested" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Biomedical lookup: {message.knowledgeStatus}
+        </p>
+      )}
+    </div>
   );
 }

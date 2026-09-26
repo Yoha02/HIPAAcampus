@@ -49,6 +49,17 @@ export function SourceDocumentView({
             {source.date} {source.patient} {source.title}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">{source.author}</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[0.65rem] font-semibold uppercase tracking-wide">
+            <span className="rounded-full bg-primary/10 px-2 py-1 text-primary">
+              Synthetic demo data
+            </span>
+            <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">
+              {source.documentationStatus.replaceAll("_", " ")}
+            </span>
+            <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">
+              Consent: {source.consentCategory.replaceAll("_", " ")}
+            </span>
+          </div>
         </header>
 
         <div className="space-y-5 text-sm leading-6">

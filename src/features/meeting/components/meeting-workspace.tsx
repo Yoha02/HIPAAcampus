@@ -1,36 +1,45 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
-import { UnderlineTabs } from "@/components/shared/underline-tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 import { DEMO_MEETING, SUGGESTED_QUESTIONS } from "../data";
-import { useInsights } from "../hooks/use-insights";
+import { useDemoSession } from "../hooks/use-demo-session";
 import { useRecorder } from "../hooks/use-recorder";
 import { useSessionChat } from "../hooks/use-session-chat";
 import { useSourcePanel } from "../hooks/use-source-panel";
-import type { BottomPanel, WorkspaceView } from "../types";
+import type { BottomPanel } from "../types";
 import { ChatPanel } from "./chat/chat-panel";
 import { BottomDock } from "./dock/bottom-dock";
-import { InsightsPanel } from "./insights/insights-panel";
 import { MeetingHeader } from "./meeting-header";
 import { NotesEditor } from "./notes/notes-editor";
 import { SourcePanel } from "./sources/source-panel";
 import { TranscriptPanel } from "./transcript/transcript-panel";
 
-const WORKSPACE_TABS: { value: WorkspaceView; label: string }[] = [
-  { value: "notes", label: "Notes" },
-  { value: "insights", label: "Insights" },
-];
-
 export function MeetingWorkspace() {
-  const [view, setView] = useState<WorkspaceView>("notes");
   const [panel, setPanel] = useState<BottomPanel>(null);
-  const insights = useInsights();
   const recorder = useRecorder();
-  const chat = useSessionChat();
+  const demo = useDemoSession();
   const sources = useSourcePanel();
+  const transcriptSegments = useMemo(
+    () =>
+      recorder.segments.map((segment, index) => ({
+        id: `whisper-${Math.round(segment.start * 1000)}-${index}`,
+        speaker: "conversation",
+        start_ms: Math.round(segment.start * 1000),
+        end_ms: Math.round(segment.end * 1000),
+        text: segment.text,
+        is_final: true,
+      })),
+    [recorder.segments],
+  );
+  const chat = useSessionChat({
+    sessionId: demo.session?.session_id ?? null,
+    notesText: demo.notesText,
+    transcriptSegments,
+    onAnswer: sources.setAnswer,
+  });
 
   const closePanel = () => setPanel(null);
   const activeCitation =
@@ -52,18 +61,46 @@ export function MeetingWorkspace() {
         <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col px-5 pb-36 pt-9 sm:px-10 lg:px-16">
           <section className="mx-auto w-full max-w-4xl">
             <MeetingHeader
-              meeting={DEMO_MEETING}
+              meeting={{
+                ...DEMO_MEETING,
+                title: demo.session?.summary.name
+                  ? `${demo.session.summary.name} consultation`
+                  : DEMO_MEETING.title,
+              }}
               sourcesOpen={sources.isOpen}
               onToggleSources={sources.toggle}
-            />
-            <UnderlineTabs
-              options={WORKSPACE_TABS}
-              value={view}
-              onChange={setView}
-              className="mb-8"
+              patients={demo.patients}
+              selectedPatientId={demo.session?.patient_id ?? null}
+              onSelectPatient={(patientId) => {
+                chat.clear();
+                sources.clear();
+                void demo.selectPatient(patientId);
+              }}
+              consent={demo.consent}
+              onConsentChange={(category, consented) => {
+                chat.clear();
+                void demo.setConsent(category, consented);
+                sources.clear();
+              }}
+              onReset={() => {
+                chat.clear();
+                sources.clear();
+                void demo.reset();
+              }}
+              disabled={demo.isLoading}
             />
             <div className="max-w-3xl">
-              {view === "notes" ? <NotesEditor /> : <InsightsPanel state={insights} />}
+              <div className="mb-5">
+                <h2 className="font-display text-2xl">Current notes</h2>
+                <p className="text-sm text-muted-foreground">
+                  These clinician-authored notes are sent with each submitted question.
+                </p>
+              </div>
+              <NotesEditor
+                key={demo.session?.session_id ?? "loading"}
+                value={demo.notesText}
+                onChange={demo.updateNotes}
+              />
             </div>
           </section>
         </div>

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 type SuggestedQuestionsProps = {
   questions: string[];
-  onSelect: (question: string) => void;
+  onSelect: (question: string) => void | Promise<void>;
 };
 
 export function SuggestedQuestions({ questions, onSelect }: SuggestedQuestionsProps) {

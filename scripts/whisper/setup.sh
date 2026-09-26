@@ -6,6 +6,18 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
+# Some workshop Macs expose a preview SDK whose text stubs are newer than the
+# installed linker understands. Prefer the stable installed SDK for this local build.
+if [ "$(uname -s)" = "Darwin" ] && [ -z "${SDKROOT:-}" ]; then
+  ACTIVE_SDK="$(xcrun --show-sdk-path 2>/dev/null || true)"
+  STABLE_SDK="/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk"
+  if [[ "$ACTIVE_SDK" == *"/MacOSX27"* ]] && [ -d "$STABLE_SDK" ]; then
+    export SDKROOT="$STABLE_SDK"
+    export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-15.0}"
+    echo "==> Using compatible SDK: $SDKROOT"
+  fi
+fi
+
 if [ ! -f "$WHISPER_SRC/CMakeLists.txt" ]; then
   echo "==> Fetching whisper.cpp submodule"
   git -C "$ROOT" submodule update --init vendor/whisper.cpp

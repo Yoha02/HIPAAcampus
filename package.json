@@ -1,10 +1,15 @@
 {
-  "name": "hipaacampus",
+  "name": "hipacampus",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "backend:setup": "python3 -m venv backend/.venv && backend/.venv/bin/pip install -r backend/requirements.txt",
+    "backend:seed": "PYTHONPATH=backend bash scripts/backend/python.sh -m app.seed",
+    "backend:validate": "PYTHONPATH=backend bash scripts/backend/python.sh -m app.seed --validate-only",
+    "backend:dev": "PYTHONPATH=backend bash scripts/backend/python.sh -m uvicorn app.main:app --reload --port 8000",
+    "backend:test": "PYTHONPATH=backend bash scripts/backend/python.sh -m pytest -q backend/tests",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
@@ -12,7 +17,8 @@
     "format": "prettier --write .",
     "whisper:setup": "bash scripts/whisper/setup.sh",
     "whisper:server": "bash scripts/whisper/server.sh",
-    "dev:all": "concurrently -k -n whisper,app -c magenta,blue \"npm:whisper:server\" \"npm:dev\""
+    "dev:demo": "concurrently -k -n api,app -c green,blue \"npm:backend:dev\" \"npm:dev\"",
+    "dev:all": "concurrently -k -n api,whisper,app -c green,magenta,blue \"npm:backend:dev\" \"npm:whisper:server\" \"npm:dev\""
   },
   "overrides": {
     "rolldown": "1.2.1"

@@ -1,8 +1,8 @@
 import type { Insight, MeetingDetails, ReplySentence } from "./types";
 
 export const DEMO_MEETING: MeetingDetails = {
-  title: "Research handoff",
-  scheduledFor: "Today, 2:30 PM",
+  title: "Clinical consultation",
+  scheduledFor: "Today · Local hackathon demo",
 };
 
 /** Each generate or regenerate shows the next version, cycling. */
@@ -64,9 +64,10 @@ export const DEMO_INSIGHT_VERSIONS: Insight[][] = [
 ];
 
 export const SUGGESTED_QUESTIONS = [
+  "What's changed since her last visit?",
   "Why did Maria stop metformin?",
-  "List the next steps",
-  "What themes came up?",
+  "Has her weight changed, and did she say why?",
+  "Which of my patients over 50 were diagnosed with diabetes in the last two years and have lost more than 5% of their body weight?",
 ];
 
 const CALL = "call-2026-06-04";
