@@ -26,6 +26,11 @@ class TranscriptUpdate(BaseModel):
     segments: list[TranscriptSegmentInput] = Field(max_length=500)
 
 
+class InsightsRequest(BaseModel):
+    notes_text: str = Field(default="", max_length=50_000)
+    transcript_segments: list[TranscriptSegmentInput] = Field(default_factory=list, max_length=500)
+
+
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4_000)
     notes_text: str = Field(default="", max_length=50_000)

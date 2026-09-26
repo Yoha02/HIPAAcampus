@@ -1,31 +1,59 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import { DEMO_INSIGHT_VERSIONS } from "../data";
+import { demoApi, type ApiTranscriptSegment } from "../lib/demo-api";
 import type { Insight } from "../types";
-
-const DEMO_GENERATION_MS = 1800;
 
 export type InsightsStatus = "idle" | "generating" | "ready";
 
 export type InsightsState = ReturnType<typeof useInsights>;
 
-export function useInsights() {
+type Options = {
+  sessionId: string | null;
+  notesText: string;
+  transcriptSegments: ApiTranscriptSegment[];
+};
+
+export function useInsights({ sessionId, notesText, transcriptSegments }: Options) {
   const [status, setStatus] = useState<InsightsStatus>("idle");
   const [insights, setInsights] = useState<Insight[]>([]);
-  const versionRef = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [transcriptSegmentCount, setTranscriptSegmentCount] = useState(0);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  const generate = () => {
-    if (status === "generating") return;
+  const generate = async () => {
+    if (status === "generating" || !sessionId) return;
     setStatus("generating");
-    timerRef.current = setTimeout(() => {
-      setInsights(DEMO_INSIGHT_VERSIONS[versionRef.current % DEMO_INSIGHT_VERSIONS.length] ?? []);
-      versionRef.current += 1;
-      setStatus("ready");
-    }, DEMO_GENERATION_MS);
+    setError(null);
+    try {
+      const response = await demoApi.insights(sessionId, notesText, transcriptSegments);
+      setInsights(response.insights);
+      setTranscriptSegmentCount(response.transcript_segment_count);
+      if (response.insights.length === 0) {
+        setError("Add notes or record part of the conversation before generating insights.");
+        setStatus("idle");
+      } else {
+        setStatus("ready");
+      }
+    } catch (generateError) {
+      setError(
+        generateError instanceof Error ? generateError.message : "Insight generation failed",
+      );
+      setStatus("idle");
+    }
   };
 
-  return { status, insights, generate };
+  const clear = () => {
+    setInsights([]);
+    setError(null);
+    setTranscriptSegmentCount(0);
+    setStatus("idle");
+  };
+
+  return {
+    status,
+    insights,
+    error,
+    transcriptSegmentCount,
+    generate,
+    clear,
+  };
 }

@@ -14,7 +14,7 @@ export function InsightsLoading({ regenerating }: { regenerating: boolean }) {
     <div role="status" aria-live="polite">
       <p className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin text-primary" />
-        {regenerating ? "Regenerating enhanced notes…" : "Generating enhanced notes…"}
+        {regenerating ? "Regenerating insights…" : "Generating insights…"}
       </p>
       <div className="border-t border-border">
         {ROW_WIDTHS.map(([first, second], index) => (

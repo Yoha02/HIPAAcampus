@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -16,6 +17,7 @@ from .records import PatientRecordService, RecordUnavailableError
 from .schemas import (
     ChatRequest,
     ConsentUpdate,
+    InsightsRequest,
     NotesUpdate,
     SessionCreate,
     TaskCreate,
@@ -23,11 +25,7 @@ from .schemas import (
 )
 
 
-DEFAULT_DEMO_NOTES = (
-    "Current consultation: weight 66 kg. Yellowing of the eyes observed. "
-    "I explained that we need urgent blood tests (bilirubin, liver panel, lipase and CA 19-9) "
-    "and a pancreas-protocol CT. This is a plan for investigation, not a confirmed diagnosis."
-)
+DEFAULT_DEMO_NOTES = ""
 
 app = FastAPI(title="HIPAAcampus Local Demo API", version="0.1.0")
 app.add_middleware(
@@ -98,6 +96,60 @@ def _upsert_transcript(session_id: str, segments: list[dict[str, Any]]) -> None:
                     int(segment["is_final"]),
                 ),
             )
+
+
+def _insight_sentences(chunks: list[str]) -> list[str]:
+    sentences: list[str] = []
+    seen: set[str] = set()
+    for chunk in chunks:
+        for sentence in re.split(r"(?<=[.!?])\s+", " ".join(chunk.split())):
+            normalized = sentence.strip()
+            key = normalized.casefold()
+            if normalized and key not in seen:
+                seen.add(key)
+                sentences.append(normalized)
+    return sentences
+
+
+def _clip_summary(sentences: list[str], limit: int = 700) -> str:
+    summary = " ".join(sentences)
+    if len(summary) <= limit:
+        return summary
+    return f"{summary[: limit - 1].rstrip()}…"
+
+
+def _generate_insights(notes_text: str, segments: list[dict[str, Any]]) -> list[dict[str, str]]:
+    finalized = [
+        segment["text"].strip()
+        for segment in segments
+        if segment.get("is_final") and segment.get("text", "").strip()
+    ]
+    notes = " ".join(notes_text.split())
+    conversation = _insight_sentences(finalized)
+    note_sentences = _insight_sentences([notes]) if notes else []
+    source_sentences = conversation or note_sentences
+    if not source_sentences:
+        return []
+
+    insights = [{"label": "Summary", "text": _clip_summary(source_sentences[:5])}]
+    action_pattern = re.compile(
+        r"\b(plan|will|need|order|schedule|follow up|refer|start|stop|hold|continue|next)\b",
+        re.IGNORECASE,
+    )
+    actions = [
+        sentence
+        for sentence in [*conversation, *note_sentences]
+        if action_pattern.search(sentence)
+    ]
+    if actions:
+        insights.append(
+            {"label": "Decisions & next steps", "text": _clip_summary(actions[:4], limit=550)}
+        )
+    if notes and conversation:
+        insights.append(
+            {"label": "Clinician notes", "text": _clip_summary(note_sentences[:4], limit=550)}
+        )
+    return insights
 
 
 @app.get("/api/health")
@@ -237,6 +289,20 @@ def update_transcript(session_id: str, payload: TranscriptUpdate) -> dict[str, A
     _session(session_id)
     _upsert_transcript(session_id, [segment.model_dump() for segment in payload.segments])
     return {"saved": True, "final_segments": sum(item.is_final for item in payload.segments)}
+
+
+@app.post("/api/sessions/{session_id}/insights")
+def generate_insights(session_id: str, payload: InsightsRequest) -> dict[str, Any]:
+    _session(session_id)
+    segments = [segment.model_dump() for segment in payload.transcript_segments]
+    _upsert_transcript(session_id, segments)
+    finalized_count = sum(segment["is_final"] and bool(segment["text"].strip()) for segment in segments)
+    return {
+        "insights": _generate_insights(payload.notes_text, segments),
+        "transcript_segment_count": finalized_count,
+        "generated_at": _now(),
+        "synthetic": True,
+    }
 
 
 @app.post("/api/sessions/{session_id}/chat")

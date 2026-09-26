@@ -51,6 +51,62 @@ def test_patient_sources_load_up_front_and_follow_consent(api_client: TestClient
     assert unavailable.status_code == 404
 
 
+def test_notes_start_blank_and_insights_use_latest_transcript(api_client: TestClient) -> None:
+    created = api_client.post("/api/sessions", json={"patient_id": "pt-maria-conti"})
+    assert created.status_code == 200
+    assert created.json()["notes_text"] == ""
+    session_id = created.json()["session_id"]
+
+    first = api_client.post(
+        f"/api/sessions/{session_id}/insights",
+        json={
+            "notes_text": "Follow up next week.",
+            "transcript_segments": [
+                {
+                    "id": "insight-1",
+                    "speaker": "patient",
+                    "start_ms": 0,
+                    "end_ms": 2000,
+                    "text": "My appetite has been lower.",
+                    "is_final": True,
+                }
+            ],
+        },
+    )
+    assert first.status_code == 200
+    assert first.json()["transcript_segment_count"] == 1
+    assert "appetite" in first.json()["insights"][0]["text"].lower()
+
+    regenerated = api_client.post(
+        f"/api/sessions/{session_id}/insights",
+        json={
+            "notes_text": "Follow up next week.",
+            "transcript_segments": [
+                {
+                    "id": "insight-1",
+                    "speaker": "patient",
+                    "start_ms": 0,
+                    "end_ms": 2000,
+                    "text": "My appetite has been lower.",
+                    "is_final": True,
+                },
+                {
+                    "id": "insight-2",
+                    "speaker": "clinician",
+                    "start_ms": 2100,
+                    "end_ms": 4000,
+                    "text": "We will order blood work tomorrow.",
+                    "is_final": True,
+                },
+            ],
+        },
+    )
+    assert regenerated.status_code == 200
+    assert regenerated.json()["transcript_segment_count"] == 2
+    insight_text = " ".join(item["text"] for item in regenerated.json()["insights"])
+    assert "blood work" in insight_text.lower()
+
+
 def test_chat_uses_latest_notes_and_valid_citations(api_client: TestClient) -> None:
     session_id = create_maria_session(api_client)
     response = ask(

@@ -9,6 +9,8 @@ the official Python MCP SDK, and local whisper.cpp transcription.
 ## What works
 
 - Clinician-owned rich-text notes, included from the editor in every submitted question.
+- Separate Notes and Insights tabs: notes start blank and stay clinician-controlled; Insights
+  summarizes the current notes and finalized transcript on demand.
 - Real local microphone capture and five-second finalized transcription chunks through whisper.cpp.
 - A resettable Maria Conti demonstration with exact historical note/transcript citations.
 - A local SQLite record service and separately runnable read-only MCP stdio server.
@@ -89,8 +91,8 @@ npm run build
 
 ## Canonical demo
 
-Maria is selected on startup. The reset note records her current 66 kg weight, yellow eyes, and the
-clinician’s investigation plan.
+Maria is selected on startup and the Notes tab starts blank. For the current-visit demo, type the
+66 kg weight, yellow eyes, and investigation plan into Notes or capture them in the live transcript.
 
 1. Ask `What's changed since her last visit?`
 2. Ask `Why did Maria stop metformin?`, click a citation, and show the June 4 spoken-only excerpt.

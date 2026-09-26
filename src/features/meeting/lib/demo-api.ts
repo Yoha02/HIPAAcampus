@@ -1,4 +1,4 @@
-import type { ConsentState, EvidenceGraph, EvidenceSource, PatientOption } from "../types";
+import type { ConsentState, EvidenceGraph, EvidenceSource, Insight, PatientOption } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api";
 
@@ -78,6 +78,19 @@ export const demoApi = {
     return request<{ saved: boolean }>(`/sessions/${sessionId}/notes`, {
       method: "PUT",
       body: JSON.stringify({ notes_text: notesText }),
+    });
+  },
+  insights(sessionId: string, notesText: string, transcriptSegments: ApiTranscriptSegment[]) {
+    return request<{
+      insights: Insight[];
+      transcript_segment_count: number;
+      generated_at: string;
+    }>(`/sessions/${sessionId}/insights`, {
+      method: "POST",
+      body: JSON.stringify({
+        notes_text: notesText,
+        transcript_segments: transcriptSegments,
+      }),
     });
   },
   chat(

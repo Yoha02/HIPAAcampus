@@ -1,23 +1,32 @@
 import { useMemo, useState } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
+import { UnderlineTabs } from "@/components/shared/underline-tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 import { DEMO_MEETING, SUGGESTED_QUESTIONS } from "../data";
 import { useDemoSession } from "../hooks/use-demo-session";
+import { useInsights } from "../hooks/use-insights";
 import { useRecorder } from "../hooks/use-recorder";
 import { useSessionChat } from "../hooks/use-session-chat";
 import { useSourcePanel } from "../hooks/use-source-panel";
-import type { BottomPanel } from "../types";
+import type { BottomPanel, WorkspaceView } from "../types";
 import { ChatPanel } from "./chat/chat-panel";
 import { BottomDock } from "./dock/bottom-dock";
 import { MeetingHeader } from "./meeting-header";
+import { InsightsPanel } from "./insights/insights-panel";
 import { NotesEditor } from "./notes/notes-editor";
 import { SourcePanel } from "./sources/source-panel";
 import { TranscriptPanel } from "./transcript/transcript-panel";
 
+const WORKSPACE_TABS: { value: WorkspaceView; label: string }[] = [
+  { value: "notes", label: "Notes" },
+  { value: "insights", label: "Insights" },
+];
+
 export function MeetingWorkspace() {
+  const [view, setView] = useState<WorkspaceView>("notes");
   const [panel, setPanel] = useState<BottomPanel>(null);
   const recorder = useRecorder();
   const demo = useDemoSession();
@@ -34,6 +43,11 @@ export function MeetingWorkspace() {
       })),
     [recorder.segments],
   );
+  const insights = useInsights({
+    sessionId: demo.session?.session_id ?? null,
+    notesText: demo.notesText,
+    transcriptSegments,
+  });
   const chat = useSessionChat({
     sessionId: demo.session?.session_id ?? null,
     notesText: demo.notesText,
@@ -73,34 +87,49 @@ export function MeetingWorkspace() {
               selectedPatientId={demo.session?.patient_id ?? null}
               onSelectPatient={(patientId) => {
                 chat.clear();
+                insights.clear();
                 sources.clear();
                 void demo.selectPatient(patientId);
               }}
               consent={demo.consent}
               onConsentChange={(category, consented) => {
                 chat.clear();
+                insights.clear();
                 void demo.setConsent(category, consented);
                 sources.clear();
               }}
               onReset={() => {
                 chat.clear();
+                insights.clear();
                 sources.clear();
                 void demo.reset();
               }}
               disabled={demo.isLoading}
             />
+            <UnderlineTabs
+              options={WORKSPACE_TABS}
+              value={view}
+              onChange={setView}
+              className="mb-8"
+            />
             <div className="max-w-3xl">
-              <div className="mb-5">
-                <h2 className="font-display text-2xl">Current notes</h2>
-                <p className="text-sm text-muted-foreground">
-                  These clinician-authored notes are sent with each submitted question.
-                </p>
-              </div>
-              <NotesEditor
-                key={demo.session?.session_id ?? "loading"}
-                value={demo.notesText}
-                onChange={demo.updateNotes}
-              />
+              {view === "notes" ? (
+                <>
+                  <div className="mb-5">
+                    <h2 className="font-display text-2xl">Current notes</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Your free-form notes. AI never edits this page.
+                    </p>
+                  </div>
+                  <NotesEditor
+                    key={demo.session?.session_id ?? "loading"}
+                    value={demo.notesText}
+                    onChange={demo.updateNotes}
+                  />
+                </>
+              ) : (
+                <InsightsPanel state={insights} />
+              )}
             </div>
           </section>
         </div>

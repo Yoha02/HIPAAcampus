@@ -16,7 +16,7 @@ export function NotesEditor({ value, onChange }: NotesEditorProps) {
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (editor && editor.innerText !== value && document.activeElement !== editor) {
+    if (editor && editor.innerText !== value) {
       editor.innerText = value;
     }
   }, [editorRef, value]);

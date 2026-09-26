@@ -13,7 +13,7 @@ type InsightsPanelProps = {
 };
 
 export function InsightsPanel({ state }: InsightsPanelProps) {
-  const { status, insights, generate } = state;
+  const { status, insights, error, transcriptSegmentCount, generate } = state;
   const isGenerating = status === "generating";
   const hasInsights = insights.length > 0;
 
@@ -22,10 +22,10 @@ export function InsightsPanel({ state }: InsightsPanelProps) {
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex items-center gap-2 font-display text-2xl">
-            <WandSparkles className="size-5 text-primary" /> Enhanced notes
+            <WandSparkles className="size-5 text-primary" /> Insights
           </div>
           <p className="text-sm text-muted-foreground">
-            A concise view of the session’s themes, decisions, and next steps.
+            A concise summary of the current notes and finalized transcript.
           </p>
         </div>
         {hasInsights && (
@@ -38,13 +38,22 @@ export function InsightsPanel({ state }: InsightsPanelProps) {
       {isGenerating ? (
         <InsightsLoading regenerating={hasInsights} />
       ) : hasInsights ? (
-        <div className="border-t border-border text-sm">
-          {insights.map((insight) => (
-            <InsightRow key={insight.label} insight={insight} />
-          ))}
-        </div>
+        <>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Generated from {transcriptSegmentCount} finalized transcript passage
+            {transcriptSegmentCount === 1 ? "" : "s"} and the current notes.
+          </p>
+          <div className="border-t border-border text-sm">
+            {insights.map((insight) => (
+              <InsightRow key={insight.label} insight={insight} />
+            ))}
+          </div>
+        </>
       ) : (
-        <InsightsEmptyState onGenerate={generate} />
+        <>
+          <InsightsEmptyState onGenerate={generate} />
+          {error && <p className="mt-4 text-center text-sm text-destructive">{error}</p>}
+        </>
       )}
     </div>
   );
