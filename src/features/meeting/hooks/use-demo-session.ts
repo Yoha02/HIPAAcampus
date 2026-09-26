@@ -36,7 +36,7 @@ export function useDemoSession() {
       } catch (error) {
         setIsLoading(false);
         toast.error(
-          error instanceof Error ? error.message : "The local HIPAcampus backend is not available",
+          error instanceof Error ? error.message : "The local HIPAAcampus backend is not available",
         );
       }
     })();

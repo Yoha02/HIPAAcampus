@@ -1,1 +1,1 @@
-"""HIPAcampus local demo backend."""
+"""HIPAAcampus local demo backend."""

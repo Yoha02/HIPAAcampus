@@ -1,4 +1,4 @@
-# HIPAcampus
+# HIPAAcampus
 
 Local clinician-context hackathon prototype built with TanStack Start/React, FastAPI, SQLite,
 the official Python MCP SDK, and local whisper.cpp transcription.
@@ -129,8 +129,8 @@ PYTHONPATH=backend backend/.venv/bin/python -m app.mcp_server
 
 Copy `.env.example` values into your shell or local environment as needed.
 
-- **Model:** `HIPACAMPUS_MODEL_MODE=local` is the deterministic demo default. For Bedrock, set
-  `HIPACAMPUS_MODEL_MODE=bedrock`, the workshop’s exact `BEDROCK_MODEL_ID`, AWS region, and normal
+- **Model:** `HIPAACAMPUS_MODEL_MODE=local` is the deterministic demo default. For Bedrock, set
+  `HIPAACAMPUS_MODEL_MODE=bedrock`, the workshop’s exact `BEDROCK_MODEL_ID`, AWS region, and normal
   AWS credentials. No model ID is invented in code.
 - **BioThings Explorer:** the adapter targets the current documented production TRAPI route,
   `https://api.bte.ncats.io/v1/query`. Results are labelled `live`, `cached`, `unavailable`,

@@ -8,7 +8,7 @@ import json
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Seed the synthetic HIPAcampus SQLite database")
+    parser = argparse.ArgumentParser(description="Seed the synthetic HIPAAcampus SQLite database")
     parser.add_argument("--validate-only", action="store_true")
     args = parser.parse_args()
     if args.validate_only:

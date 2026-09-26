@@ -5,12 +5,12 @@ import { MeetingWorkspace } from "@/features/meeting";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HIPAcampus — Physician Notes Workspace" },
+      { title: "HIPAAcampus — Physician Notes Workspace" },
       {
         name: "description",
         content: "A calm workspace for live transcripts, notes, and meeting insights.",
       },
-      { property: "og:title", content: "HIPAcampus — Physician Notes Workspace" },
+      { property: "og:title", content: "HIPAAcampus — Physician Notes Workspace" },
       {
         property: "og:description",
         content: "Capture live transcripts and turn conversations into clear notes.",

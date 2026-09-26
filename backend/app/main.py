@@ -29,7 +29,7 @@ DEFAULT_DEMO_NOTES = (
     "and a pancreas-protocol CT. This is a plan for investigation, not a confirmed diagnosis."
 )
 
-app = FastAPI(title="HIPAcampus Local Demo API", version="0.1.0")
+app = FastAPI(title="HIPAAcampus Local Demo API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8080", "http://127.0.0.1:8080"],
