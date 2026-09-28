@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/Yoha02/HIPAAcampus/f2f06ea3adf7702195920595b278f31f80ac60b0/docs/assets/hero.svg" alt="Hippacampus — The conversation behind the chart" width="100%" />
 </p>
 
-# Hippacampus · A second brain for the clinician
+# Hippacampus · A clinical memory for the clinician
 
 **Remember the conversation. Connect the history. Keep the clinician in control.**
 
@@ -20,7 +20,7 @@ During a consultation, write your own notes and ask for context when you need it
 
 _The product experience: capture your thoughts, ask for context, inspect the evidence. Images in this README are real captures of the [showcase branch](https://github.com/Yoha02/HIPAAcampus/tree/feature/clinical-workspace-showcase), not screenshots of the current `main` build. Main has a newer backend and different controls, including Insights and Consent; the capability table below describes main._
 
-## A second brain that follows the clinician's questions
+## A clinical memory that follows the clinician's questions
 
 - **Remember across encounters.** Recover a patient's earlier words alongside written notes and structured measurements.
 - **Keep your thinking space.** The notes editor belongs to the clinician. Questions and on-demand Insights are separate from the draft.
@@ -141,7 +141,7 @@ Epic, Oracle Health, Teams, UpToDate and PubMed are interface concepts in these 
 
 ## Privacy and HIPAA
 
-**The product direction is a clinician's second brain built for confidential care. The current repository is a synthetic-data prototype, not a verified HIPAA-compliant deployment.**
+**The product direction is a clinician's clinical memory built for confidential care. The current repository is a synthetic-data prototype, not a verified HIPAA-compliant deployment.**
 
 The demo already explores several useful boundaries: local record storage and speech processing, configured doctor/patient scoping, category-based consent filtering, read-only record tools, and explicit source provenance. BioThings requests use public concept identifiers rather than patient notes. These choices are architectural foundations, not a compliance determination.
 
@@ -151,7 +151,7 @@ Before real patient use, the deployment would need assessed identity and access 
 
 **For this hackathon: use fictional data, keep external actions under clinician control, and make every retrieved claim inspectable.**
 
-## How the second brain works
+## How the clinical memory works
 
 ```mermaid
 flowchart LR
