@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">Hippacampus — The conversation behind the chart</title>
+  <desc id="desc">A clinician-led workspace connecting notes, conversations and records to their evidence.</desc>
+  <rect width="1280" height="400" rx="22" fill="#f8f6ef"/>
+  <path d="M760 0v400" stroke="#e3dfd4"/>
+  <rect x="52" y="46" width="36" height="36" rx="9" fill="#2168ad"/>
+  <text x="70" y="72" text-anchor="middle" font-family="Arial,sans-serif" font-size="23" fill="white">H</text>
+  <text x="105" y="69" font-family="Arial,sans-serif" font-size="14" letter-spacing="3" fill="#51656c">CLINICIAN-LED MEMORY</text>
+  <text x="50" y="164" font-family="Georgia,serif" font-size="70" fill="#193039">Hippacampus</text>
+  <text x="54" y="211" font-family="Arial,sans-serif" font-size="27" fill="#334b53">The conversation behind the chart.</text>
+  <text x="54" y="257" font-family="Arial,sans-serif" font-size="18" fill="#647477">Capture your thoughts. Ask for context.</text>
+  <text x="54" y="285" font-family="Arial,sans-serif" font-size="18" fill="#647477">Follow the evidence back to its source.</text>
+  <rect x="54" y="330" width="143" height="29" rx="14" fill="#e7eeea"/>
+  <text x="125" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#345c43">LOCAL PROTOTYPE</text>
+  <text x="216" y="349" font-family="Arial,sans-serif" font-size="12" letter-spacing="1" fill="#687b7d">NOTES  /  CHAT  /  PROVENANCE</text>
+  <g fill="none" stroke="#c5d3d8" stroke-width="2">
+    <path d="M876 114L1007 211M1134 114L1007 211M1007 286V249"/>
+  </g>
+  <g font-family="Arial,sans-serif" text-anchor="middle">
+    <rect x="798" y="66" width="157" height="78" rx="12" fill="#fffefa" stroke="#dfe3da"/>
+    <circle cx="819" cy="88" r="4" fill="#8560b6"/>
+    <text x="876" y="101" font-size="17" fill="#344952">Your notes</text>
+    <text x="876" y="123" font-size="11" fill="#788589">Clinician-owned thoughts</text>
+    <rect x="1055" y="66" width="157" height="78" rx="12" fill="#fffefa" stroke="#dfe3da"/>
+    <circle cx="1076" cy="88" r="4" fill="#428faf"/>
+    <text x="1134" y="101" font-size="17" fill="#344952">Conversations</text>
+    <text x="1134" y="123" font-size="11" fill="#788589">The patient's own words</text>
+    <rect x="915" y="189" width="184" height="62" rx="14" fill="#edf3f6" stroke="#82a9c7"/>
+    <text x="1007" y="216" font-size="17" fill="#2168ad">Your question</text>
+    <text x="1007" y="236" font-size="11" fill="#56747e">Trace every cited passage</text>
+    <rect x="925" y="287" width="164" height="73" rx="12" fill="#fffefa" stroke="#dfe3da"/>
+    <circle cx="946" cy="310" r="4" fill="#c58b3d"/>
+    <text x="1007" y="321" font-size="17" fill="#344952">Patient records</text>
+    <text x="1007" y="343" font-size="11" fill="#788589">History across encounters</text>
+  </g>
+</svg>

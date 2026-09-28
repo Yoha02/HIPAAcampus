@@ -25,8 +25,22 @@ export type ReplySentence = {
   citations: Citation[];
 };
 
-export type ChatMessage =
-  { role: "user"; text: string } | { role: "assistant"; sentences: ReplySentence[] };
+export type ChatMessage = { role: "user"; text: string } | ChatReply;
+
+export type EvidenceGraph = {
+  nodes: { id: string; kind: "answer" | "source"; label: string; citations: Citation[] }[];
+  edges: { id: string; source: string; target: string; label: string }[];
+};
+
+export type ChatReply = {
+  id: string;
+  role: "assistant";
+  question: string;
+  sentences: ReplySentence[];
+  graph: EvidenceGraph;
+  sources: SourceDocument[];
+  mode: "local-extractive";
+};
 
 /** Plain strings render as-is; `{ id, text }` spans are citable passages that get highlighted. */
 export type SourceSpan = string | { id: string; text: string };

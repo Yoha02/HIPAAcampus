@@ -1,30 +1,32 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
-import { DEMO_SUMMARY_VERSIONS } from "../data";
-
-const DEMO_GENERATION_MS = 1800;
+import { summarizeConsultation, type ConsultationContext } from "../lib/clinical-api";
 
 export type SummaryStatus = "idle" | "generating" | "ready";
-
 export type SummaryState = ReturnType<typeof useSummary>;
 
-export function useSummary() {
+export function useSummary(getContext: () => ConsultationContext) {
   const [status, setStatus] = useState<SummaryStatus>("idle");
   const [bullets, setBullets] = useState<string[]>([]);
-  const versionRef = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const pending = useRef(false);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  const generate = () => {
-    if (status === "generating") return;
+  const generate = async () => {
+    if (pending.current) return;
+    pending.current = true;
     setStatus("generating");
-    timerRef.current = setTimeout(() => {
-      setBullets(DEMO_SUMMARY_VERSIONS[versionRef.current % DEMO_SUMMARY_VERSIONS.length] ?? []);
-      versionRef.current += 1;
+    setError(null);
+    try {
+      const result = await summarizeConsultation(getContext());
+      setBullets(result.bullets);
       setStatus("ready");
-    }, DEMO_GENERATION_MS);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Unable to read the consultation.");
+      setStatus("idle");
+    } finally {
+      pending.current = false;
+    }
   };
 
-  return { status, bullets, generate };
+  return { status, bullets, generate, error };
 }

@@ -23,7 +23,9 @@ export function SummaryPanel({ state }: SummaryPanelProps) {
           <div className="mb-2 flex items-center gap-2 font-display text-2xl">
             <WandSparkles className="size-5 text-primary" /> Summary
           </div>
-          <p className="text-sm text-muted-foreground">The key points from this session.</p>
+          <p className="text-sm text-muted-foreground">
+            Your notes and captured speech · Local extractive mode.
+          </p>
         </div>
         {hasSummary && (
           <Button variant="outline" size="sm" onClick={generate} disabled={isGenerating}>
@@ -32,6 +34,16 @@ export function SummaryPanel({ state }: SummaryPanelProps) {
           </Button>
         )}
       </div>
+      {state.error && (
+        <p role="alert" className="mb-4 text-sm text-destructive">
+          {state.error}
+        </p>
+      )}
+      {status === "ready" && !hasSummary && (
+        <p className="mb-4 text-sm text-muted-foreground">
+          No notes or completed transcript passages yet.
+        </p>
+      )}
       {isGenerating ? (
         <SummaryLoading regenerating={hasSummary} />
       ) : hasSummary ? (

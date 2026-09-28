@@ -31,3 +31,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local clinical service
+.venv/
+__pycache__/
+.pytest_cache/
+backend/data/
+.env

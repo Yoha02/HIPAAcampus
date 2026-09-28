@@ -4,6 +4,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "backend:install": "python -m pip install -r backend/requirements.txt",
+    "backend:dev": "python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload",
+    "backend:test": "python -m pytest backend/test_app.py -q",
+    "dev:local": "concurrently -k -n records,app -c green,blue \"npm:backend:dev\" \"npm:dev\"",
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",

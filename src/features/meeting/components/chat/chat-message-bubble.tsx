@@ -1,13 +1,15 @@
 import { Fragment } from "react";
 
-import { findSource, sourceTitle } from "../../sources";
-import type { ChatMessage, Citation, ReplySentence } from "../../types";
+import { sourceTitle } from "../../sources";
+import type { ChatMessage, ChatReply, Citation, ReplySentence, SourceDocument } from "../../types";
 import { CitationChip } from "../sources/citation-chip";
 
 type ChatMessageBubbleProps = {
   message: ChatMessage;
   activeCitation: Citation | null;
   onCitationClick: (citation: Citation) => void;
+  onShowGraph: (reply: ChatReply) => void;
+  onSelectAnswer: (reply: ChatReply) => void;
 };
 
 const citationKey = (citation: Citation) => `${citation.sourceId}#${citation.passageId}`;
@@ -29,13 +31,15 @@ function CitationButton({
   number,
   active,
   onClick,
+  sources,
 }: {
   citation: Citation;
   number: number;
   active: boolean;
   onClick: () => void;
+  sources: SourceDocument[];
 }) {
-  const source = findSource(citation.sourceId);
+  const source = sources.find((source) => source.id === citation.sourceId);
   if (!source) return null;
   return (
     <CitationChip
@@ -52,6 +56,8 @@ export function ChatMessageBubble({
   message,
   activeCitation,
   onCitationClick,
+  onShowGraph,
+  onSelectAnswer,
 }: ChatMessageBubbleProps) {
   if (message.role === "user") {
     return (
@@ -65,7 +71,7 @@ export function ChatMessageBubble({
   const activeKey = activeCitation && citationKey(activeCitation);
 
   return (
-    <p className="max-w-[78%] text-sm leading-7">
+    <div className="max-w-[90%] text-sm leading-7">
       {message.sentences.map((sentence, index) => (
         <Fragment key={index}>
           {sentence.text}
@@ -73,13 +79,24 @@ export function ChatMessageBubble({
             <CitationButton
               key={citationKey(citation)}
               citation={citation}
+              sources={message.sources}
               number={numbers.get(citationKey(citation)) ?? 0}
               active={citationKey(citation) === activeKey}
-              onClick={() => onCitationClick(citation)}
+              onClick={() => {
+                onSelectAnswer(message);
+                onCitationClick(citation);
+              }}
             />
           ))}{" "}
         </Fragment>
       ))}
-    </p>
+      <button
+        type="button"
+        onClick={() => onShowGraph(message)}
+        className="mt-2 block text-xs font-medium text-primary hover:underline"
+      >
+        View connections
+      </button>
+    </div>
   );
 }

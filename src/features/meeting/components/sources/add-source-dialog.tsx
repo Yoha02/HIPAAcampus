@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 import { readFileText, sourceFromText } from "../../lib/source-from-text";
 import type { SourceCategory, SourceDocument } from "../../types";
@@ -34,7 +35,7 @@ type UploadedFile = { name: string; text: string | null };
 type AddSourceDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (source: SourceDocument) => void;
+  onAdd: (source: SourceDocument) => Promise<void>;
 };
 
 const stripExtension = (name: string) => name.replace(/\.[^.]+$/, "");
@@ -46,6 +47,7 @@ export function AddSourceDialog({ open, onOpenChange, onAdd }: AddSourceDialogPr
   const [pasted, setPasted] = useState("");
   const [file, setFile] = useState<UploadedFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const reset = () => {
     setMode("upload");
@@ -73,11 +75,11 @@ export function AddSourceDialog({ open, onOpenChange, onAdd }: AddSourceDialogPr
   };
 
   const canAdd =
-    (mode === "upload" && file !== null) || (mode === "paste" && pasted.trim().length > 0);
+    (mode === "upload" && !!file?.text?.trim()) || (mode === "paste" && pasted.trim().length > 0);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!canAdd) return;
+    if (!canAdd || saving) return;
     const source =
       mode === "upload" && file
         ? sourceFromText({
@@ -92,8 +94,15 @@ export function AddSourceDialog({ open, onOpenChange, onAdd }: AddSourceDialogPr
             kind: "Pasted text",
             text: pasted,
           });
-    onAdd(source);
-    handleOpenChange(false);
+    setSaving(true);
+    try {
+      await onAdd(source);
+      handleOpenChange(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save source.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -134,7 +143,7 @@ export function AddSourceDialog({ open, onOpenChange, onAdd }: AddSourceDialogPr
                   </span>
                 )}
                 <span className="text-xs text-muted-foreground">
-                  Text files show their full contents. Other files are listed by name.
+                  Import a text file, or paste the text from another document.
                 </span>
                 <input
                   type="file"
@@ -177,8 +186,8 @@ export function AddSourceDialog({ open, onOpenChange, onAdd }: AddSourceDialogPr
             <Button variant="ghost" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" form="add-source-form" disabled={!canAdd}>
-              Add source
+            <Button type="submit" form="add-source-form" disabled={!canAdd || saving}>
+              {saving ? "Saving…" : "Add source"}
             </Button>
           </DialogFooter>
         )}

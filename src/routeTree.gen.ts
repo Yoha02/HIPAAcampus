@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as ApiClinicalSplatRouteImport } from './routes/api/clinical/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   path: '/api/transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalSplatRoute = ApiClinicalSplatRouteImport.update({
+  id: '/api/clinical/$',
+  path: '/api/clinical/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/clinical/$': typeof ApiClinicalSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/clinical/$': typeof ApiClinicalSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/clinical/$': typeof ApiClinicalSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/transcribe'
+  fullPaths: '/' | '/api/transcribe' | '/api/clinical/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/transcribe'
-  id: '__root__' | '/' | '/api/transcribe'
+  to: '/' | '/api/transcribe' | '/api/clinical/$'
+  id: '__root__' | '/' | '/api/transcribe' | '/api/clinical/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
+  ApiClinicalSplatRoute: typeof ApiClinicalSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/$': {
+      id: '/api/clinical/$'
+      path: '/api/clinical/$'
+      fullPath: '/api/clinical/$'
+      preLoaderRoute: typeof ApiClinicalSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
+  ApiClinicalSplatRoute: ApiClinicalSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

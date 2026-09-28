@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { commandForKey, type NoteCommand } from "../lib/note-commands";
 import {
@@ -20,10 +20,10 @@ export function useRichTextEditor() {
 
   useEffect(() => setParagraphSeparator(), []);
 
-  const syncEmpty = () => {
+  const syncEmpty = useCallback(() => {
     const editor = editorRef.current;
     if (editor) setIsEmpty(isEditorEmpty(editor));
-  };
+  }, []);
 
   const captureSelection = () => {
     const editor = editorRef.current;

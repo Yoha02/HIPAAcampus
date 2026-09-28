@@ -11,6 +11,7 @@ import { AddSourceDialog } from "./add-source-dialog";
 import { SourceDocumentView } from "./source-document-view";
 import { SourceLegend } from "./source-legend";
 import { SourceRecordList } from "./source-record-list";
+import { SourceGraph } from "./source-graph";
 
 const SOURCE_TABS: { value: SourcePanelTab; label: string }[] = [
   { value: "record", label: "Record" },
@@ -25,8 +26,8 @@ export function SourcePanel({ panel }: SourcePanelProps) {
   const [adding, setAdding] = useState(false);
   const source = panel.activeSource;
 
-  const addSource = (added: SourceDocument) => {
-    panel.addSource(added);
+  const addSource = async (added: SourceDocument) => {
+    await panel.addSource(added);
     toast.success(`Added “${added.title}”`);
   };
 
@@ -58,7 +59,11 @@ export function SourcePanel({ panel }: SourcePanelProps) {
       <SourceLegend />
 
       {panel.tab === "graph" ? (
-        <div className="flex-1" />
+        <SourceGraph
+          key={panel.answer?.id ?? "empty"}
+          answer={panel.answer}
+          onCitationClick={panel.showCitation}
+        />
       ) : source && panel.focus ? (
         <SourceDocumentView
           key={source.id}
